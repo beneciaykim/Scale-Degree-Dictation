@@ -1,8 +1,9 @@
 /* Scale Degree Dictation: offline-first app shell (same-origin only). */
-const CACHE_NAME = 'scale-degree-dictation-v2-2-webapp-1';
+const CACHE_NAME = 'scale-degree-dictation-v2-3-sf-1';
 const ASSETS = [
   './',
   './index.html',
+  './soundfont-engine.js',
   './manifest.webmanifest',
   './assets/icon-192.png',
   './assets/icon-512.png'

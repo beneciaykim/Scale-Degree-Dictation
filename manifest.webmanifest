@@ -2,14 +2,24 @@
   "id": "./",
   "name": "Scale Degree Dictation",
   "short_name": "Degree Dictation",
-  "description": "Customizable scale-degree ear training with an offline piano.",
+  "description": "Offline scale-degree dictation with built-in piano and browser-local SF2/SF3 SoundFont loading.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0c101b",
   "theme_color": "#101421",
   "icons": [
-    {"src": "./assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
-    {"src": "./assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }

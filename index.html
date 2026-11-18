@@ -12,7 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png" />
   <link rel="apple-touch-icon" href="./assets/icon-192.png" />
-  <title>Scale Degree Dictation v2.2 — Ear Training</title>
+  <title>Scale Degree Dictation v2.3 — Ear Training</title>
   <style>
     :root{color-scheme:dark;--bg:#0c101b;--panel:#141b2a;--panel2:#1a2436;--line:#2b3851;--text:#edf1fb;--muted:#9eacc4;--accent:#8de0cf;--accent2:#ac9fff;--gold:#f6cd7e;--red:#ff979e;--green:#8de0cf;--radius:18px}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(900px 500px at 14% -10%,#202b47 0,transparent 74%),radial-gradient(650px 420px at 100% 0,#242139 0,transparent 75%),var(--bg);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);line-height:1.45}
@@ -116,6 +116,17 @@
     @media(max-width:750px){.settings-grid{column-gap:18px}.results-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.degree-results{grid-template-columns:1fr}.stepper{padding:12px}.step{gap:6px}.step-copy small{display:none}.settings-panel{padding:23px}.session-footer-row{align-items:start;flex-direction:column}.results-score{min-width:140px;height:140px;font-size:40px}}
     @media(max-width:580px){.stepper{gap:7px}.step-connector{min-width:5px}.step-copy strong{font-size:11px}.step-num{width:28px;height:28px;border-radius:8px;font-size:10px}.page-intro{align-items:start}.page-intro-session{flex-direction:column}.settings-panel,.results-panel{padding:19px}.settings-grid{grid-template-columns:1fr;row-gap:20px}.settings-grid #customScaleField,.settings-grid #customResolutionField{grid-column:1; padding:13px}.settings-grid #customNotes{grid-template-columns:repeat(4,minmax(0,1fr))}.settings-grid #customResolutionField .phrase-editor{grid-template-columns:1fr}.settings-grid #cadenceHelp{grid-column:1}.settings-action{flex-direction:column;align-items:stretch}.settings-action .btn.main{max-width:none}.session-page .exercise{padding:18px}.results-hero{flex-direction:column;text-align:center;gap:17px}.results-score{height:138px;min-width:138px}.result-tile{padding:13px}.result-tile strong{font-size:18px}.review-item{grid-template-columns:26px minmax(0,1fr);gap:8px;padding:11px}.review-status{grid-column:2}.results-actions .btn{width:100%}}
 
+  
+    /* v2.3 · browser-local custom SoundFont controls. */
+    .settings-grid .soundfont-settings{grid-column:1/-1;padding:17px 20px 18px;border:1px solid #375167;border-radius:14px;background:#172637}
+    .soundfont-settings input[type=file]{width:100%;background:#202c41;border:1px solid #3c526e;border-radius:10px;padding:10px;color:#dae7f8;min-height:47px;font-size:13px}
+    .soundfont-settings input[type=file]::file-selector-button{border:1px solid #547a81;border-radius:8px;background:#25514d;color:#b7f7e8;padding:7px 13px;margin-right:14px;cursor:pointer;font-weight:750}
+    .soundfont-settings .sf-preset-label{margin-top:16px}
+    .soundfont-settings select{width:100%}
+    .soundfont-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .soundfont-actions .tiny-button{font-size:12px;padding:9px 14px}
+    .soundfont-status{font-size:12px;line-height:1.55;color:#94adbf;margin:11px 0 0}
+    .soundfont-status.is-error{color:var(--red)}.soundfont-status.is-success{color:var(--accent)}
   </style>
 </head>
 <body>
@@ -167,7 +178,16 @@
         <button class="tiny-button" id="resetPhrases" type="button">Reset custom phrases</button>
         <p class="help">Blank fields use the built-in phrase for the selected scale. All 12 degrees can be edited, even if not selected for questions.</p>
       </div>
-      <div class="field"><label for="timbre">Piano sound</label><select id="timbre"><option value="sampled">Sampled Grand Piano · SoundFont</option><option value="synth">Original Synth Piano</option></select></div>
+      <div class="field"><label for="timbre">Piano sound</label><select id="timbre"><option value="sampled">Sampled Grand Piano · SoundFont</option><option value="synth">Original Synth Piano</option><option value="custom">Custom SoundFont · SF2 / SF3</option></select></div>
+      <div class="field hidden soundfont-settings" id="customSoundfontField">
+        <label for="soundfontFile">Load a SoundFont from this device</label>
+        <input type="file" id="soundfontFile" accept=".sf2,.sf3" aria-describedby="soundfontNote" />
+        <div class="help" id="soundfontNote">SF2 works locally in your browser; SF3 (Ogg Vorbis) playback depends on browser decoding support. No file is uploaded.</div>
+        <label for="soundfontPreset" class="sf-preset-label">Instrument preset</label>
+        <select id="soundfontPreset" disabled><option>Choose a SoundFont first</option></select>
+        <div class="soundfont-actions"><button id="soundfontPreview" type="button" class="tiny-button" disabled>♫ Preview C4</button><button id="soundfontClear" class="tiny-button" type="button" disabled>Remove SoundFont</button></div>
+        <p id="soundfontStatus" class="soundfont-status" role="status" aria-live="polite">No SoundFont loaded.</p>
+      </div>
        <div class="field"><label for="range">Target note range</label><select id="range"><option value="21-108">Full 88 keys · A0–C8</option><option value="36-96">C2~C7</option><option value="48-84">C3~C6</option><option value="60-84">C4~C6</option></select></div>
       <div class="field"><label for="count">Number of questions <span class="tiny">1~100</span></label><input id="count" type="number" inputmode="numeric" min="1" max="100" step="1" value="10" /></div>
       <p class="help" id="cadenceHelp" style="margin:-3px 0 17px">Each session starts with I–IV–V–I to establish the tonic. Minor keys use i–iv–V–i.</p>
@@ -178,7 +198,7 @@
         <button class="btn primary main" id="startBtn">▶ Start new session</button>
       </div>
     </section>
-    <p class="under-note">♫ Every setting is stored in this page while it is open. All piano samples work offline.</p>
+    <p class="under-note">♫ Every setting is stored in this page while it is open. Built-in piano works offline; user SoundFonts stay on your device and are never uploaded.</p>
   </section>
 
   <section id="screen-session" class="app-screen hidden session-page" aria-label="Ear training session">
@@ -224,10 +244,11 @@
       <div class="results-actions"><button class="btn primary" id="againBtn" type="button">↻ Practice again</button><button class="btn ghost" id="editFromResultsBtn" type="button">⚙ Change settings</button></div>
     </section>
   </section>
-  <footer class="footer"><span>♪ Offline sampled piano / synthesized piano. Created with ChatGPT-6</span><span><strong>Scale Degree Dictation v2.2</strong> · Standalone HTML</span></footer>
+  <footer class="footer"><span>♪ Offline piano / browser-local SoundFont. Created with ChatGPT-6</span><span><strong>Scale Degree Dictation v2.3</strong> · Web App</span></footer>
    <p class="tiny" style="margin:12px 0 0;line-height:1.65">Piano samples rendered from <a href="https://github.com/musescore/MuseScore/wiki/SoundFonts" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">TimGM6mb SoundFont</a> by Tim Brechbill (with later contributions by David Bolton), licensed GPL-2.0. <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">License</a>. Samples have been rendered and MP3-encoded for this app. SoundFont attribution and GPL license notice are preserved in this HTML.</p>
 
 </main>
+<script src="./soundfont-engine.js"></script>
 <script>
 (() => {
   'use strict';
@@ -270,8 +291,72 @@
   let customSelection = new Set(MAJOR);
   let phraseOverrides = {};
 
-  // The original standalone sampled piano and synth engine are reused intact.
+  // The built-in sampled piano and synth remain available, even without an uploaded SoundFont.
   let ctx = null, audioBuffers = new Map(), waveTimer = null, warmupTimer = null, audioRequest = 0;
+  let customSF = null, sfReady = false, sfLoadToken = 0;
+  function sfStatus(message,status=''){
+    const el=$('soundfontStatus');el.textContent=message;
+    el.className='soundfont-status'+(status?' is-'+status:'');
+  }
+  function sfControlsReady(ready){
+    sfReady=ready;$('soundfontPreview').disabled=!ready;
+    $('soundfontPreset').disabled=!customSF;
+    $('soundfontClear').disabled=!customSF;
+  }
+  async function ensureAudioContext(){
+    if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)throw Error('This browser does not support Web Audio.');ctx=new AC();}
+    if(ctx.state==='suspended')await ctx.resume();
+  }
+  async function prepareSoundfontPreset(){
+    if(!customSF)return;
+    const myToken=++sfLoadToken;
+    const presetId=Number($('soundfontPreset').value);
+    sfControlsReady(false);
+    sfStatus('Preparing instrument samples locally…');
+    try{
+      await ensureAudioContext();
+      const layers=await customSF.prepare(ctx,presetId);
+      if(myToken!==sfLoadToken)return;
+      sfControlsReady(true);
+      const name=customSF.presets[presetId]?.name||'Instrument';
+      sfStatus(`${name} · ${layers} sample zone(s) ready. All sound stays on this device.`, 'success');
+    }catch(err){
+      if(myToken!==sfLoadToken)return;
+      sfControlsReady(false);
+      sfStatus(err.message||'Could not prepare SoundFont.', 'error');
+      console.warn('SoundFont preparation failed:',err);
+    }
+  }
+  async function loadSoundfontFile(file){
+    ++sfLoadToken;
+    stopVoices();
+    if(customSF){customSF.dispose();customSF=null;}
+    sfControlsReady(false);
+    $('soundfontPreset').innerHTML='<option>Loading…</option>';
+    if(!file){$('soundfontPreset').innerHTML='<option>Choose a SoundFont first</option>';sfStatus('No SoundFont loaded.');return;}
+    if(!/\.(sf2|sf3)$/i.test(file.name)){
+      sfStatus('Please choose a .sf2 or .sf3 SoundFont file.','error');return;
+    }
+    if(file.size>280*1024*1024){sfStatus('This file is over 280 MB. Try a smaller SoundFont to avoid browser memory limits.','error');return;}
+    sfStatus(`Reading ${file.name} (${(file.size/1048576).toFixed(1)} MB)…`);
+    try{
+      const bytes=await file.arrayBuffer();
+      const parsed=new window.SoundFontSampler(bytes);
+      customSF=parsed;
+      const select=$('soundfontPreset');select.innerHTML='';
+      for(const p of parsed.presets){const option=document.createElement('option');option.value=p.id;option.textContent=p.label;select.appendChild(option);}
+      const piano=parsed.presets.find(p=>p.bank===0&&p.program===0);
+      select.value=String(piano?piano.id:0);
+      $('soundfontClear').disabled=false;
+      await prepareSoundfontPreset();
+    }catch(err){
+      sfStatus(err.message||'Could not load SoundFont.','error');console.warn('SoundFont load failed:',err);
+      $('soundfontPreset').innerHTML='<option>Choose a SoundFont first</option>';
+      if(customSF){customSF.dispose();customSF=null;}
+      sfControlsReady(false);
+    }
+  }
   function stopVoices() {
     audioRequest++;
     for(const s of state.played){try{s.stop()}catch(e){}}
@@ -279,8 +364,10 @@
     clearTimeout(waveTimer);clearTimeout(warmupTimer);$('wave').classList.remove('playing');
   }
   async function enableAudio(){
-    if(!ctx){ const AC = window.AudioContext || window.webkitAudioContext; if(!AC)throw Error('This browser does not support Web Audio.'); ctx = new AC(); }
-    if(ctx.state === 'suspended') await ctx.resume();
+    await ensureAudioContext();
+    if($('timbre').value==='custom' && (!customSF || !sfReady)){
+      throw Error('Select and load a SoundFont preset in Settings before starting.');
+    }
     if($('timbre').value==='sampled'){
       if(sampledBuffers.size!==sampledPitches.length){
         await loadSampledPiano();
@@ -343,6 +430,10 @@
     audioBuffers.set(midi,buf);return buf;
   }
   function play(midi,at,duration=1.9,volume=.82){
+    if($('timbre').value==='custom' && customSF && sfReady){
+      customSF.play(ctx,midi,at,duration,volume,state.played);
+      return;
+    }
     const s=ctx.createBufferSource();
     const useSamples=$('timbre').value==='sampled' && !sampleFailed && sampledBuffers.size===sampledPitches.length;
     if(useSamples){
@@ -728,6 +819,7 @@
     $('scaleHelp').textContent=selectedScaleDescription(mode);
     $('customScaleField').classList.toggle('hidden',mode!=='custom');
     $('customResolutionField').classList.toggle('hidden',resMode!=='custom');
+    $('customSoundfontField').classList.toggle('hidden',$('timbre').value!=='custom');
     const phraseInfo={tonic:'Moves along scale steps to the nearest Do; chromatic and custom modes use semitones.',phrases:'Contextual phrases: Fa → Mi/Me, Sol → La → Ti → Do (major/melodic) or Sol → Fa → Me → Re → Do (natural minor), etc.',custom:'Edit any of the 12 degree-based phrases below; notes outside the question scale are always allowed.'};
     $('resolutionHelp').textContent=phraseInfo[resMode];
     $('cadenceHelp').textContent=(isMinor(mode)?'Minor i–iv–V–i reference cadence':'Major I–IV–V–I reference cadence')+' plays at the start'+($('keyBehavior').value==='per-question'?' and before every new key.':'.');
@@ -779,10 +871,27 @@
     return !hasError;
   }
   $('timbre').addEventListener('change',()=>{
-    stopVoices();
+    stopVoices();updateSettingsUI();
     if(state.active){if(state.introPlaying)playAudio('cadenceIntro');}
   });
+  $('soundfontFile').addEventListener('change',e=>{loadSoundfontFile(e.target.files?.[0]);});
+  $('soundfontPreset').addEventListener('change',prepareSoundfontPreset);
+  $('soundfontClear').addEventListener('click',()=>{
+    ++sfLoadToken;stopVoices();if(customSF)customSF.dispose();customSF=null;
+    $('soundfontFile').value='';$('soundfontPreset').innerHTML='<option>Choose a SoundFont first</option>';
+    sfControlsReady(false);sfStatus('No SoundFont loaded.');
+  });
+  $('soundfontPreview').addEventListener('click',async()=>{
+    if(!sfReady||!customSF)return;
+    stopVoices();
+    try{await ensureAudioContext();customSF.play(ctx,60,ctx.currentTime+.04,1.6,.85,state.played);}
+    catch(err){sfStatus(err.message,'error');}
+  });
   $('startBtn').addEventListener('click',()=>{
+    if($('timbre').value==='custom'&&!sfReady){
+      showSettingsError('Load a valid SoundFont and wait for the instrument to be ready.');
+      $('soundfontFile').focus();return;
+    }
     if($('resolutionMode').value==='custom'&&!validateCustomPhrases())return;
     start();
   });
